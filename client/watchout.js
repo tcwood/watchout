@@ -1,17 +1,37 @@
+
+/*
+=================================
+GLOBAL VARS
+=================================
+*/
+
+var width = 800;
+var height = 400;
+
+
+
+
+
+
+
+
+
 /*
 =================================
 CREATE BACKGROUND CONTAINER
 =================================
 */
 var svgContainer = d3.select('.board').append('svg')
-                               .attr('width', 800)
-                               .attr('height', 400)
+                               .attr('width', width)
+                               .attr('height', height)
                                .style('fill', '#94d31b');
+
+
 
 
 /*
 =================================
-HELPER FUNCTIONS
+VILLIAN FUNCTIONS
 =================================
 */
 
@@ -21,9 +41,9 @@ var updateData = function(n) {
   for (var i = 0; i < n; i++) {
     var tempObj = {};
 
-    tempObj.xPos = Math.random() * 400;
+    tempObj.xPos = Math.random() * width;
 
-    tempObj.yPos = Math.random() * 400;
+    tempObj.yPos = Math.random() * height;
 
     tempObj.id = i;
 
@@ -47,7 +67,8 @@ var update = function() {
                   .attr('cx', d => d.xPos)
                   .attr('cy', d => d.yPos)
                   .attr('r', villianRadius)
-                  .attr('fill', villianColor);  
+                  .attr('fill', villianColor)
+                  .classed('villian', true); 
 
 
   // UPDATE
@@ -68,6 +89,21 @@ var villianColor = '#000000';
 
 
 
+/*
+=================================
+HERO FUNCTIONALITY
+=================================
+*/
+
+var drag = d3.behavior
+              .drag()
+              .on('drag', function(d, i) {
+                d.x += d3.event.dx;
+                d.y += d3.event.dy;
+                d3.select(this).attr('transform', function(d, i) {
+                  return 'translate(' + [ d.x, d.y ] + ')';
+                });
+              });
 
 
 /*
@@ -80,7 +116,21 @@ var heroRadius = 50;
 
 var heroColor = '#94d31b';
 
-var hero = svgContainer.
+
+var hero = svgContainer.selectAll('hero')
+                       .data([{x: width / 2, y: height / 2}]);
+
+
+hero.enter().append('circle')
+              .attr('cx', d => d.x)
+              .attr('cy', d => d.y)
+             .attr('fill', heroColor) 
+             .attr('r', heroRadius)
+             .classed('hero', true)
+             .call(drag);
+
+
+
 
 
 
