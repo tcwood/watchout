@@ -2,4 +2,14 @@
 
 /* Note: an asteroid image is included in this repo.
 Feel free to use it if you like. */
+.board {
+  width: 900px;
+  height: 900px;
+}
+
+html {
+  background-color: blue;
+}
+
+
 
