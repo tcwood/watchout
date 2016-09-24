@@ -7,8 +7,15 @@ GLOBAL VARS
 
 var width = window.innerWidth * .8 + 20;
 var height = window.innerHeight * .6 + 20;
+var duration = 5000;
+var numVillians = 10;
 
-
+var addVillians = function() {
+  
+}
+setInterval(function() {
+  numVillians++;
+}, duration);
 
 
 
@@ -37,7 +44,6 @@ var updateData = function(n) {
     var tempObj = {};
 
     tempObj.xPos = Math.random() * width;
-
     tempObj.yPos = Math.random() * height;
 
     tempObj.id = i;
@@ -50,7 +56,7 @@ var updateData = function(n) {
 
 
 var update = function() {
-  var villianObjects = updateData(1);
+  var villianObjects = updateData(numVillians);
 
   var villians = svgContainer.selectAll('circle')
                   .data(villianObjects, d => d.id);
@@ -67,10 +73,29 @@ var update = function() {
 
 
   // UPDATE
-  villians.transition()
+  villians
+          .transition()
           .attr('cx', d => d.xPos)
           .attr('cy', d => d.yPos)
-          .duration(500);
+          .duration(duration)
+          .tween('cx', function(d) {
+            var newX = d.xPos;
+            var oldX = this.getAttribute('cx');
+            var interpolatorX = d3.interpolateNumber(oldX, newX);
+            return function(t) {
+              d.cX = interpolatorX(t);
+              return interpolatorX(t);
+            };
+          })
+          .tween('cy', function(d) {
+            var newY = d.yPos;
+            var oldY = this.getAttribute('cy');
+            var interpolatorY = d3.interpolateNumber(oldY, newY);
+            return function(t) {
+              d.cY = interpolatorY(t);
+              return interpolatorY(t);
+            };
+          });
 };
 
 
@@ -107,35 +132,24 @@ var collision = function() {
 
   var hY = d3.select('.hero').attr('cy');
 
-  d3.selectAll('.villian').each(item => {
-    var vX = item.xPos;
-    var vY = item.yPos;
+  d3.selectAll('.villian').each(d => {
+    var vX = d.cX;
+    var vY = d.cY;
 
     xDiff = Math.ceil(Math.abs(vX - hX));
     yDiff = Math.ceil(Math.abs(vY - hY)); 
 
-
-    // console.log(item.xPos);
-
     centersDistance = Math.pow((Math.pow(xDiff, 2) + Math.pow(yDiff, 2)), .5);
+    // console.log(centersDistance);
+    if (centersDistance < heroRadius + villianRadius) {
+      console.log('COLLISION!!!!');
 
+    }
 
-    console.log(centersDistance); 
-
-
-    // if ( centersDistance < villianRadius + heroRadius ) {
-    //   console.log(item.yPos);
-    //   d3.select('.hero').attr('fill', 'red');  
-    //   console.log('X collision');
-    // } 
   });
 
 
 };
-
-// (ifvillianX > heroBufferLeft && villianX < villianBufferRight) && (villianY)
-
-
 
 /*
 =================================
@@ -161,48 +175,15 @@ hero.enter().append('circle')
              .call(drag);
 
 
-
-
-
-
-
-
-
-// var svg = d3.select('svg');
-// svg.on('mousemove', function() {
-//   console.log(d3.mouse(this));
-// });
-
-
-
-
-
-  
-
-
-
-
 update();
 update();
-setInterval(update, 500);
-// setInterval(function() {
-//   console.log('x:' + x + ', y:' + y);
-// }, 100);
+setInterval(update, duration);
 
 
 
-setInterval(collision, 30);
+setInterval(collision, 10);
 
 
-attrTween('cx', function() {
-  var interpolatorX = d3.interpolate(oldDataX, newDataX)//
-  var interpolatorY = d3.interpolate(oldDataY, newDataY)
-  return function(t) {
-    this.xPos = interpolatorX(t);
-    this.yPos = interpolatorY(t);
-  }
-
-})
 
 
 
