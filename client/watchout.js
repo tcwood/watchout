@@ -10,10 +10,6 @@ var height = window.innerHeight * .6 + 20;
 
 
 
-console.log(window.innerHeight);
-
-
-
 
 
 /*
@@ -54,7 +50,7 @@ var updateData = function(n) {
 
 
 var update = function() {
-  var villianObjects = updateData(10);
+  var villianObjects = updateData(1);
 
   var villians = svgContainer.selectAll('circle')
                   .data(villianObjects, d => d.id);
@@ -74,7 +70,7 @@ var update = function() {
   villians.transition()
           .attr('cx', d => d.xPos)
           .attr('cy', d => d.yPos)
-          .duration(5000);
+          .duration(500);
 };
 
 
@@ -101,38 +97,43 @@ var drag = d3.behavior
                 d.y += d3.event.dy;
                 d3.select(this).attr('cx', (width / 2) + d.x)
                                .attr('cy', (height / 2) + d.y);
-
-
-                // d3.select(this).attr('transform', function(d, i) {
-                //   return 'translate(' + [ d.x, d.y ] + ')';
-                // });
               });
 
 
 var collision = function() {
 
 
-  var heroXPos = d3.select('.hero').attr('cx');
+  var hX = d3.select('.hero').attr('cx');
 
-  var heroYPos = d3.select('.hero').attr('cy');
-
-  var heroXBufferLeft = heroXPos - heroRadius;
-  var heroXBufferRight = heroXPos + heroRadius; 
-
-  var heroYBufferTop = heroYPos + heroRadius;
-  var heroYBufferBottom = heroYPos - heroRadius; 
-
+  var hY = d3.select('.hero').attr('cy');
 
   d3.selectAll('.villian').each(item => {
-    if ( item.xPos >= heroXBufferLeft && item.xPos <= heroXBufferRight ) {
-      d3.select('.hero').attr('fill', 'red');  
-    
-      console.log("X collision");
-    } 
+    var vX = item.xPos;
+    var vY = item.yPos;
+
+    xDiff = Math.ceil(Math.abs(vX - hX));
+    yDiff = Math.ceil(Math.abs(vY - hY)); 
+
+
+    // console.log(item.xPos);
+
+    centersDistance = Math.pow((Math.pow(xDiff, 2) + Math.pow(yDiff, 2)), .5);
+
+
+    console.log(centersDistance); 
+
+
+    // if ( centersDistance < villianRadius + heroRadius ) {
+    //   console.log(item.yPos);
+    //   d3.select('.hero').attr('fill', 'red');  
+    //   console.log('X collision');
+    // } 
   });
 
 
 };
+
+// (ifvillianX > heroBufferLeft && villianX < villianBufferRight) && (villianY)
 
 
 
@@ -142,7 +143,7 @@ HERO ATTRIBUTES
 =================================
 */
 
-var heroRadius = 15;
+var heroRadius = 30;
 
 var heroColor = '#94d31b';
 
@@ -183,14 +184,25 @@ hero.enter().append('circle')
 
 update();
 update();
-setInterval(update, 5000);
+setInterval(update, 500);
 // setInterval(function() {
 //   console.log('x:' + x + ', y:' + y);
 // }, 100);
 
 
 
-setInterval(collision, 300);
+setInterval(collision, 30);
+
+
+attrTween('cx', function() {
+  var interpolatorX = d3.interpolate(oldDataX, newDataX)//
+  var interpolatorY = d3.interpolate(oldDataY, newDataY)
+  return function(t) {
+    this.xPos = interpolatorX(t);
+    this.yPos = interpolatorY(t);
+  }
+
+})
 
 
 
