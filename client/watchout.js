@@ -13,14 +13,10 @@ var gameOver = false;
 var addVillianRate = 2;
 var highScore = 0;
 var score = 0;
+var updateData, detectCollisions, increaseScore, increaseVillians, heroData;
 
 
 
-var addVillians = function() {
-  setInterval(function() {
-    numVillians += addVillianRate;
-  }, duration);
-};
 
 
 
@@ -40,30 +36,6 @@ SCOREBOARD
 =================================
 */
 
-var increaseScore = setInterval( function() {
-  if (!gameOver) {
-    score += Math.round(numVillians * .2);
-    $('.score').text('Score: ' + score);
-    if (score > highScore) {
-      $('.highScore').text('High Score: ' + score);
-    }
-  }
-}, 20);
-
-
-
-/*
-=================================
-GAME RESET
-=================================
-*/
-var gameReset = function() {
-  score = 0;
-  gameOver = false;
-  numVillians = 1;
-
-
-};
 
 
 /*
@@ -72,11 +44,8 @@ VILLIAN FUNCTIONS
 =================================
 */
 
-var updateData = function(n, trigger) {
+var setRandomPositions = function(n) {
   var data = [];
-  if (trigger) {       //empty array if game over
-    return data;
-  }
 
   for (var i = 0; i < n; i++) {
     var tempObj = {};
@@ -93,10 +62,12 @@ var updateData = function(n, trigger) {
 
 
 var update = function() {
-  var villianObjects = updateData(numVillians, gameOver);
+  var villianObjects = setRandomPositions(numVillians, gameOver);
 
   var villians = svgContainer.selectAll('circle')
                   .data(villianObjects, d => d.id);
+
+  var hero = svgContainer.selectAll('hero');
 
   // ENTER
   villians.enter().append('circle')
@@ -140,6 +111,8 @@ var update = function() {
             };
           });
 
+  d3.selectAll('.villian').data(villianObjects, d => d.id).exit().remove();
+  d3.selectAll('.hero').data(heroData).exit().remove();
 
 };
 
@@ -183,11 +156,11 @@ var collision = function() {
     yDiff = Math.ceil(Math.abs(vY - hY)); 
 
     centersDistance = Math.pow((Math.pow(xDiff, 2) + Math.pow(yDiff, 2)), .5);
-    // console.log(centersDistance);
+    // COLLISION
     if (centersDistance < heroRadius + villianRadius) {
-      
       d3.select('.hero').attr('fill', 'red');
       gameOver = true;
+      gameReset();
     }
 
   });
@@ -209,7 +182,7 @@ var heroColor = '#94d31b';
 
 var createHero = function() {
   var hero = svgContainer.selectAll('hero')
-                         .data([{x: 1, y: 1, xPos: width / 2, yPos: height / 2}]);
+                         .data(heroData);
   hero.enter().append('circle')
             .attr('cx', d => d.xPos)
             .attr('cy', d => d.yPos)
@@ -219,12 +192,49 @@ var createHero = function() {
             .call(drag);
 };
 
+
+
+
+
+
+
+
 var startGame = function() {
+  heroData = [{x: 1, y: 1, xPos: width / 2, yPos: height / 2}];
   createHero();
   update();
-  setInterval(update, duration);
-  setInterval(collision, 10);
-  addVillians();
+  updateData = setInterval(update, duration);
+  detectCollisions = setInterval(collision, 10);
+  increaseScore = setInterval( function() {
+    score += Math.round(numVillians * .2);
+    $('.score').text('Score: ' + score);
+    if (score > highScore) {
+      highScore = score;
+      $('.highScore').text('High Score: ' + score);
+    }
+  }, 20);
+  increaseVillians = setInterval(function() {
+    numVillians += addVillianRate;
+  }, duration);
+  d3.select('.hero').attr('fill', heroColor);
+};
+
+var gameReset = function() {
+  score = 0;
+  gameOver = false;
+  numVillians = 1;
+  setRandomPositions(0);
+  heroData = [];
+  d3.select('.hero').transition()
+                    .attr('cx', width / 2)
+                    .attr('cy', height / 2)
+                    .duration(1000);
+
+  clearInterval(updateData);
+  clearInterval(setRandomPositions);
+  clearInterval(increaseScore);
+  clearInterval(increaseVillians);
+  clearInterval(detectCollisions);
 };
 
 startGame();
