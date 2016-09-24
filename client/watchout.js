@@ -7,15 +7,14 @@ GLOBAL VARS
 
 var width = window.innerWidth * .8 + 20;
 var height = window.innerHeight * .6 + 20;
-var duration = 5000;
-var numVillians = 10;
+var duration = 2000;
+var numVillians = 1;
 
 var addVillians = function() {
-  
-}
-setInterval(function() {
-  numVillians++;
-}, duration);
+  setInterval(function() {
+    numVillians += 1;
+  }, duration);
+};
 
 
 
@@ -65,7 +64,17 @@ var update = function() {
   
   // ENTER
   villians.enter().append('circle')
-                  .attr('cx', d => d.xPos)
+                  .attr('cx', function(d) {
+                    var curr = d.xPos;
+                    var hero = d3.select('.hero').attr('cx');
+            
+                    if (Math.abs(curr - hero) < heroRadius + villianRadius + 10) {
+                      console.log("too close")
+                      return d.xPos + (heroRadius + villianRadius) * 2 + 50;
+                    } else {
+                      return d.xPos;
+                    }
+                  })
                   .attr('cy', d => d.yPos)
                   .attr('r', villianRadius)
                   .attr('fill', villianColor)
