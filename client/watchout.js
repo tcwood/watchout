@@ -197,6 +197,9 @@ var collision = function() {
     if (centersDistance < heroRadius + villianRadius) {
       d3.select('.hero').attr('fill', 'red');
       gameReset();
+    } else if (hX < heroRadius || hX > width - heroRadius || hY < 45 + heroRadius || hY > height - heroRadius * 2) {
+      d3.select('.hero').attr('fill', 'red');
+      gameReset();
     }
 
   });
