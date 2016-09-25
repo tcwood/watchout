@@ -8,15 +8,45 @@ GLOBAL VARS
 var width = window.innerWidth;
 var height = window.innerHeight + 45;
 var duration = 2000;
-var numVillians = 1;
-var gameOver = false;
-var addVillianRate = 2;
-var highScore = 0;
-var score = 0;
+
 var updateData, detectCollisions, increaseScore, increaseVillians, heroData;
 
+var gameOver = false;
+
+/*
+=================================
+SCOREBOARD
+=================================
+*/
 
 
+var highScore = 0;
+var score = 0;
+
+
+/*
+=================================
+HERO ATTRIBUTES
+=================================
+*/
+
+var heroRadius = 30;
+
+var heroColor = '#94d31b';
+
+
+
+
+// ============================ 
+// VILLIAN ATTRIBUTES
+// ============================
+var villianRadius = 20;
+
+var villianColor = '#000000';
+
+var numVillians = 1;
+
+var addVillianRate = 2;
 
 
 
@@ -30,17 +60,13 @@ var svgContainer = d3.select('.board').append('svg')
                                .style('fill', '#ccffff');
 
 
-/*
-=================================
-SCOREBOARD
-=================================
-*/
+
 
 
 
 /*
 =================================
-VILLIAN FUNCTIONS
+INITIALIZE FUNCTIONS
 =================================
 */
 
@@ -62,12 +88,22 @@ var setRandomPositions = function(n) {
 
 
 var update = function() {
-  var villianObjects = setRandomPositions(numVillians, gameOver);
+  var villianObjects = setRandomPositions(numVillians);
 
   var villians = svgContainer.selectAll('circle')
                   .data(villianObjects, d => d.id);
 
-  var hero = svgContainer.selectAll('hero');
+
+  // HERO ENTER
+  var hero = svgContainer.selectAll('hero')
+                         .data(heroData);
+  hero.enter().append('circle')
+            .attr('cx', d => d.xPos)
+            .attr('cy', d => d.yPos)
+            .attr('fill', heroColor) 
+            .attr('r', heroRadius)
+            .classed('hero', true)
+            .call(drag);
 
   // ENTER
   villians.enter().append('circle')
@@ -111,19 +147,13 @@ var update = function() {
             };
           });
 
-  d3.selectAll('.villian').data(villianObjects, d => d.id).exit().remove();
+  d3.selectAll('.villian').data(villianObjects, d => d.id).exit()
+                          .transition().attr('fill', 'rgb(255, 0, 0)').duration(1000)
+                          .style('opacity', 0).remove();
   d3.selectAll('.hero').data(heroData).exit().remove();
 
 };
 
-
-
-// ============================ 
-// VILLIAN ATTRIBUTES
-// ============================
-var villianRadius = 20;
-
-var villianColor = '#000000';
 
 
 
@@ -142,6 +172,13 @@ var drag = d3.behavior
                                .attr('cy', (height / 2) + d.y);
               });
 
+/*
+=================================
+COLLISION LOGIC
+=================================
+*/
+
+
 
 var collision = function() {
   var hX = d3.select('.hero').attr('cx');
@@ -159,7 +196,6 @@ var collision = function() {
     // COLLISION
     if (centersDistance < heroRadius + villianRadius) {
       d3.select('.hero').attr('fill', 'red');
-      gameOver = true;
       gameReset();
     }
 
@@ -168,40 +204,18 @@ var collision = function() {
 
 };
 
+
 /*
 =================================
-HERO ATTRIBUTES
+RUNNING THE GAME
 =================================
 */
-
-var heroRadius = 30;
-
-var heroColor = '#94d31b';
-
-
-
-var createHero = function() {
-  var hero = svgContainer.selectAll('hero')
-                         .data(heroData);
-  hero.enter().append('circle')
-            .attr('cx', d => d.xPos)
-            .attr('cy', d => d.yPos)
-            .attr('fill', heroColor) 
-            .attr('r', heroRadius)
-            .classed('hero', true)
-            .call(drag);
-};
-
-
-
-
-
 
 
 
 var startGame = function() {
   heroData = [{x: 1, y: 1, xPos: width / 2, yPos: height / 2}];
-  createHero();
+  //createHero();
   update();
   updateData = setInterval(update, duration);
   detectCollisions = setInterval(collision, 10);
@@ -217,11 +231,12 @@ var startGame = function() {
     numVillians += addVillianRate;
   }, duration);
   d3.select('.hero').attr('fill', heroColor);
+  gameOver = false;
 };
 
 var gameReset = function() {
   score = 0;
-  gameOver = false;
+  gameOver = true;
   numVillians = 1;
   setRandomPositions(0);
   heroData = [];
@@ -237,6 +252,19 @@ var gameReset = function() {
   clearInterval(detectCollisions);
 };
 
+/*
+=================================
+MAGIC
+=================================
+*/
+
 startGame();
+
+d3.select('.hero').on('mouseenter', function() {
+  if (gameOver) {
+    startGame();
+  }         
+});
+
 
 
