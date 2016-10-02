@@ -30,9 +30,9 @@ HERO ATTRIBUTES
 =================================
 */
 
-var heroRadius = 30;
+var heroRadius = 40;
 
-var heroColor = '#94d31b';
+var heroColor = 'url(#alix)';
 
 
 
@@ -40,9 +40,9 @@ var heroColor = '#94d31b';
 // ============================ 
 // VILLIAN ATTRIBUTES
 // ============================
-var villianRadius = 20;
+var villianRadius = 40;
 
-var villianColor = '#000000';
+var villianColor = 'url(#hedgehog)';
 
 var numVillians = 1;
 
