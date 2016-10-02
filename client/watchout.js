@@ -7,7 +7,7 @@ GLOBAL VARS
 
 var width = window.innerWidth;
 var height = window.innerHeight + 45;
-var duration = 2000;
+var duration = 3000;
 
 var updateData, detectCollisions, increaseScore, increaseVillians, heroData;
 
@@ -46,7 +46,7 @@ var villianColor = '#000000';
 
 var numVillians = 1;
 
-var addVillianRate = 2;
+var addVillianRate = 1;
 
 
 
@@ -268,6 +268,45 @@ d3.select('.hero').on('mouseenter', function() {
     startGame();
   }         
 });
+
+d3.select('#easy').on('click', function() {
+  numVillians = 1;
+  addVillianRate = 1;
+  duration = 3000;
+  d3.select('#dropdownMenu1').text('Difficulty: Easy');
+});
+
+
+d3.select('#hard').on('click', function() {
+  numVillians = 2;
+  addVillianRate = 2;
+  duration = 2500;
+  d3.select('#dropdownMenu1').text('Difficulty: Hard');
+});
+
+
+d3.select('#nightmare').on('click', function() {
+  numVillians = 3;
+  addVillianRate = 2;
+  duration = 1500;
+  d3.select('#dropdownMenu1').text('Difficulty: Nightmare');
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
